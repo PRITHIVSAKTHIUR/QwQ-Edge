@@ -14,85 +14,68 @@ short_description: 'Multimodality '
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
 
+# QwQ Edge 💬
 
-# QwQ Edge: Multimodal AI Assistant
+QwQ Edge is an advanced multimodal chatbot that integrates AI-driven text-to-speech (TTS) generation, image generation using Stable Diffusion XL (SDXL), and a conversational interface powered by large language models. The app supports real-time conversations with multimedia output, including images and speech, and offers a flexible environment for creative and interactive communication.
 
-![Demo](demo.gif)
+### Key Features:
+1. **Multimodal Conversational AI**: Supports text, image, and speech as input/output.
+2. **Text-to-Speech (TTS)**: Convert text responses into speech with multiple voice options using Edge TTS.
+3. **Image Generation**: Generate high-quality images based on prompts using the Stable Diffusion XL pipeline.
+4. **Multimodal Inputs**: Handle text, image files, and spoken queries for generating appropriate outputs.
+5. **Real-time Interaction**: Provides instant responses with streaming output and live updates for image generation and TTS processing.
+6. **Customizable Parameters**: Fine-tune token generation parameters such as temperature, top-p, top-k, and repetition penalties for more controlled responses.
 
-QwQ Edge is an advanced multimodal AI assistant that combines text generation, image understanding, speech synthesis, and image creation capabilities in a single conversational interface. Built with cutting-edge AI models, it supports natural interactions through text, images, and voice commands.
+### Technologies Used:
+- **Gradio**: For creating the user-friendly interface.
+- **Transformers**: For NLP and text processing (Hugging Face models).
+- **Stable Diffusion XL**: For high-quality image generation.
+- **Edge TTS**: For converting text into speech.
+- **Python**: For the backend logic and model integration.
+- **PyTorch**: For deep learning model inference and acceleration.
 
-## Key Features
+### Supported Commands:
+- **Text-to-Speech (TTS)**: 
+  - `@tts1`: Use the "en-US-JennyNeural" voice.
+  - `@tts2`: Use the "en-US-GuyNeural" voice.
+- **Image Generation**:
+  - `@image <description>`: Generate an image from the given description using Stable Diffusion XL.
 
-💬 **Multimodal Chat**
-- Text conversations with 0.5B parameter LLM
-- Image analysis & OCR with Qwen2-VL 2B model
-- Support for multiple image uploads
-- Context-aware conversation history
+### Environment Setup
 
-🎨 **AI Image Generation**
-- Create high-quality images from text prompts
-- Powered by Stable Diffusion XL
-- Customizable parameters:
-  - Resolution up to 1024x1024
-  - Guidance scale and inference steps
-  - Seed control and randomization
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/PRITHIVSAKTHIUR/QwQ-Edge.git
+   cd QwQ-Edge
+   ```
 
-🗣️ **Text-to-Speech**
-- Natural sounding voice synthesis
-- Multiple voice options:
-  - Jenny Neural (Female)
-  - Guy Neural (Male)
-- Auto-play audio responses
+2. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-⚡ **Special Commands**
-- `@image [prompt]` - Generate images
-- `@tts1`/`@tts2` - Switch voice responses
-- Multi-file image analysis support
+3. Set up the environment variables for model paths and parameters:
+   - `MODEL_VAL_PATH`: Path to the SDXL model.
+   - `MAX_INPUT_TOKEN_LENGTH`: Maximum token length for model inputs.
+   - Other environment variables for batch size, resolution, and CPU/GPU usage.
 
-## Installation
+4. Launch the app:
+   ```bash
+   python app.py
+   ```
 
-1. Clone repository:
-```bash
-git clone https://github.com/yourusername/qwq-edge.git
-cd qwq-edge
-```
+### Example Usage:
+1. **TTS Example**:
+   - Type: `@tts1 What is quantum computing?`
+   - The app will convert this text into speech using the JennyNeural voice.
+   
+2. **Image Generation Example**:
+   - Type: `@image A futuristic city skyline at sunset with neon lights`
+   - The app will generate an image based on the prompt using the SDXL model.
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Set environment variables:
-```bash
-export HF_TOKEN="your_huggingface_token"
-export MODEL_VAL_PATH="stabilityai/stable-diffusion-xl-base-1.0"
-```
-
-## Usage
-
-```bash
-python app.py
-```
-
-**Example Interactions:**
-- `@tts1 Explain quantum computing in simple terms`
-- `@image Cyberpunk cityscape at night, neon lights, rain reflections`
-- Upload image + "What's written in this document?"
-- "Write a Python script for face detection"
-
-## Configuration
-
-Environment Variables:
-- `MAX_IMAGE_SIZE`: Max resolution for generated images (default: 4096)
-- `BATCH_SIZE`: Number of images to generate simultaneously
-- `USE_TORCH_COMPILE`: Enable model compilation for speed
-- `ENABLE_CPU_OFFLOAD`: Enable memory optimization
-
-Model Parameters:
-- Temperature: 0.1-4.0 (response creativity)
-- Top-p: 0.05-1.0 (response diversity)
-- Max Tokens: Up to 2048 tokens
-- Repetition Penalty: 1.0-2.0
+3. **Chatbot Conversation Example**:
+   - Type: `What is the capital of France?`
+   - The app will respond with a chatbot-generated text response.
 
 ## Technical Architecture
 
