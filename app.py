@@ -326,5 +326,4 @@ demo = gr.ChatInterface(
 )
 
 if __name__ == "__main__":
-    # To create a public link, set share=True in launch().
     demo.queue(max_size=20).launch(share=True)
