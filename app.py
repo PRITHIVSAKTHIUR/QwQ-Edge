@@ -23,7 +23,6 @@ from transformers import (
 from transformers.image_utils import load_image
 from diffusers import StableDiffusionXLPipeline, EulerAncestralDiscreteScheduler
 
-
 DESCRIPTION = """
 # QwQ Edge 💬
 """
@@ -89,6 +88,7 @@ def clean_chat_history(chat_history):
     return cleaned
 
 # Environment variables and parameters for Stable Diffusion XL
+# Use : SG161222/RealVisXL_V4.0_Lightning or SG161222/RealVisXL_V5.0_Lightning
 MODEL_ID_SD = os.getenv("MODEL_VAL_PATH")  # SDXL Model repository path via env variable
 MAX_IMAGE_SIZE = int(os.getenv("MAX_IMAGE_SIZE", "4096"))
 USE_TORCH_COMPILE = os.getenv("USE_TORCH_COMPILE", "0") == "1"
@@ -128,6 +128,26 @@ def randomize_seed_fn(seed: int, randomize_seed: bool) -> int:
     if randomize_seed:
         seed = random.randint(0, MAX_SEED)
     return seed
+
+def progress_bar_html(label: str) -> str:
+    """
+    Returns an HTML snippet for a thin progress bar with a label.
+    The progress bar is styled as a dark red animated bar.
+    """
+    return f'''
+<div style="display: flex; align-items: center;">
+    <span style="margin-right: 10px; font-size: 14px;">{label}</span>
+    <div style="width: 110px; height: 5px; background-color: #FFF0F5; border-radius: 2px; overflow: hidden;">
+        <div style="width: 100%; height: 100%; background-color: #FF69B4; animation: loading 1.5s linear infinite;"></div>
+    </div>
+</div>
+<style>
+@keyframes loading {{
+    0% {{ transform: translateX(-100%); }}
+    100% {{ transform: translateX(100%); }}
+}}
+</style>
+    '''
 
 @spaces.GPU(duration=60, enable_queue=True)
 def generate_image_fn(
@@ -200,7 +220,8 @@ def generate(
     if text.strip().lower().startswith("@image"):
         # Remove the "@image" tag and use the rest as prompt
         prompt = text[len("@image"):].strip()
-        yield "Generating image..."
+        # Show animated progress bar for image generation
+        yield progress_bar_html("Generating Image")
         image_paths, used_seed = generate_image_fn(
             prompt=prompt,
             negative_prompt="",
@@ -214,7 +235,7 @@ def generate(
             use_resolution_binning=True,
             num_images=1,
         )
-        # Yield the generated image so that the chat interface displays it.
+        # Once done, yield the generated image
         yield gr.Image(image_paths[0])
         return  # Exit early
 
@@ -256,14 +277,14 @@ def generate(
         thread.start()
 
         buffer = ""
-        yield "Thinking..."
+        # Show animated progress bar for multimodal generation
+        yield progress_bar_html("Thinking...")
         for new_text in streamer:
             buffer += new_text
             buffer = buffer.replace("<|im_end|>", "")
             time.sleep(0.01)
             yield buffer
     else:
-        
         input_ids = tokenizer.apply_chat_template(conversation, add_generation_prompt=True, return_tensors="pt")
         if input_ids.shape[1] > MAX_INPUT_TOKEN_LENGTH:
             input_ids = input_ids[:, -MAX_INPUT_TOKEN_LENGTH:]
@@ -285,6 +306,8 @@ def generate(
         t.start()
 
         outputs = []
+        # Show animated progress bar for text generation
+        yield progress_bar_html("Thinking...")
         for new_text in streamer:
             outputs.append(new_text)
             yield "".join(outputs)
@@ -307,20 +330,19 @@ demo = gr.ChatInterface(
         gr.Slider(label="Repetition penalty", minimum=1.0, maximum=2.0, step=0.05, value=1.2),
     ],
     examples=[
+        ["@image Chocolate dripping from a donut against a yellow background, in the style of brocore, hyper-realistic"],
+        ["Python Program for Array Rotation"],
         ["@tts1 Who is Nikola Tesla, and why did he die?"],
         [{"text": "Extract JSON from the image", "files": ["examples/document.jpg"]}],
         [{"text": "summarize the letter", "files": ["examples/1.png"]}],
-        ["@image Chocolate dripping from a donut against a yellow background, in the style of brocore, hyper-realistic"],
-        ["Write a Python function to check if a number is prime."],
         ["@tts2 What causes rainbows to form?"],
-
     ],
     cache_examples=False,
     type="messages",
     description=DESCRIPTION,
     css=css,
     fill_height=True,
-    textbox=gr.MultimodalTextbox(label="Query Input", file_types=["image"], file_count="multiple"),
+    textbox=gr.MultimodalTextbox(label="Query Input", file_types=["image"], file_count="multiple",  placeholder="‎ @tts1, @tts2-voices, @image-image gen, default [text, vision]"),
     stop_btn="Stop Generation",
     multimodal=True,
 )
